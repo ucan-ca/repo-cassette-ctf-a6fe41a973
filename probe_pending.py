@@ -2,7 +2,7 @@ import os,uuid,json,urllib.request,urllib.error,urllib.parse
 import solve
 run_id,job_id=solve.backend_ids(os.environ['ACTIONS_RUNTIME_TOKEN']);common={'workflow_run_backend_id':run_id,'workflow_job_run_backend_id':job_id};repo=os.environ['GITHUB_REPOSITORY'];tok=os.environ['GITHUB_TOKEN'];name='pending-'+uuid.uuid4().hex[:10]+'.json'
 created=solve.twirp('CreateArtifact',{**common,'name':name,'version':7,'mime_type':'application/json'})
-print('created_keys',list(created),flush=True)
+print('created_keys',list(created),'upload_path',urllib.parse.urlsplit(created['signed_upload_url']).path,'query_keys',list(urllib.parse.parse_qs(urllib.parse.urlsplit(created['signed_upload_url']).query)),flush=True)
 def list_all(label):
  try:
   x=solve.twirp('ListArtifacts',{**common,'name':name});print(label,'twirp',x,flush=True)
