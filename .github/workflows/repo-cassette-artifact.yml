@@ -28,6 +28,7 @@ jobs:
         id: artifact
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          CASSETTE_ARTIFACT_EXT: bin
         run: python3 solve.py upload
 
       - name: Print identifiers

@@ -97,14 +97,20 @@ def make_artifact(github_repository):
     common = {"workflow_run_backend_id": run_id, "workflow_job_run_backend_id": job_id}
     # Ask the artifact service to retain the unusual media type too. If it
     # validates MIME syntax, the Azure Blob header still provides the mismatch.
-    name = f"repo-cassette-{uuid.uuid4().hex[:12]}.json"
+    extension = os.environ.get("CASSETTE_ARTIFACT_EXT", "json")
+    if not re.fullmatch(r"[A-Za-z0-9]{1,12}", extension):
+        raise ValueError("Invalid artifact extension")
+    name = f"repo-cassette-{uuid.uuid4().hex[:12]}.{extension}"
     try:
         created = twirp("CreateArtifact", {**common, "name": name, "version": 7, "mime_type": NEL_JSON})
+        print("create_mime=nel")
     except HTTPError as error:
         if error.code not in (400, 415, 422):
             raise
-        name = f"repo-cassette-{uuid.uuid4().hex[:12]}.json"
+        print(f"nel_create_rejected_http={error.code}")
+        name = f"repo-cassette-{uuid.uuid4().hex[:12]}.{extension}"
         created = twirp("CreateArtifact", {**common, "name": name, "version": 7, "mime_type": "application/json"})
+        print("create_mime=json")
     signed_url = created["signed_upload_url"]
 
     # Some backends expose the database ID as soon as CreateArtifact returns.
