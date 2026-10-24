@@ -7,12 +7,13 @@ class Stop(urllib.request.HTTPRedirectHandler):
  def redirect_request(self,*args): return None
 opener=urllib.request.build_opener(Stop)
 cases=[
- ('amp_nel','&rsct=%C2%85application%2Fjson'),
- ('amp_fs','&rsct=%1Capplication%2Fjson'),
- ('amp_reverse','&rsct=application%2Fjson%C2%85'),
- ('hash_nel','#&rsct=%C2%85application%2Fjson'),
- ('pct_amp','%26rsct%3D%25C2%2585application%252Fjson'),
- ('semicolon',';rsct=%C2%85application%2Fjson'),
+ ('crlf_ct','\r\nContent-Type: \x85application/json'),
+ ('lf_ct','\nContent-Type: \x85application/json'),
+ ('cr_ct','\rContent-Type: \x85application/json'),
+ ('nel_ct','\x85Content-Type: \x85application/json'),
+ ('pct_crlf','%0D%0AContent-Type%3A%20%85application%2Fjson'),
+ ('unicode_ls','\u2028Content-Type: \x85application/json'),
+ ('us_ct','\x1fContent-Type: \x85application/json'),
 ]
 for version in (7,6):
  for label,suffix in cases:
