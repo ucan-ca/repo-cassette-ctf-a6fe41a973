@@ -1,0 +1,36 @@
+name: Repo Cassette artifact
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # GitHub exposes these values to actions, but not directly to run steps.
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const token = process.env.ACTIONS_RUNTIME_TOKEN;
+            const url = process.env.ACTIONS_RESULTS_URL;
+            if (!token || !url) throw new Error('Actions artifact runtime is unavailable');
+            core.setSecret(token);
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', token);
+            core.exportVariable('ACTIONS_RESULTS_URL', url);
+
+      - name: Upload and verify raw artifact
+        id: artifact
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 solve.py upload
+
+      - name: Print identifiers
+        run: |
+          echo 'Artifact ID: ${{ steps.artifact.outputs.artifact_id }}'
+          echo 'Repository identifier: ${{ steps.artifact.outputs.repository }}'
