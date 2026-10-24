@@ -6,16 +6,10 @@ common = {'workflow_run_backend_id':run_id,'workflow_job_run_backend_id':job_id}
 repo=os.environ['GITHUB_REPOSITORY']
 secret=os.environ['GITHUB_TOKEN']
 candidates=[
- ('pct85_prefix','%85application/json'),
- ('pct85_suffix','application/json%85'),
- ('pctC285_prefix','%C2%85application/json'),
- ('pctC285_suffix','application/json%C2%85'),
- ('pctu0085_prefix','%u0085application/json'),
- ('pctu0085_suffix','application/json%u0085'),
- ('pct2585_prefix','%2585application/json'),
- ('pct2585_suffix','application/json%2585'),
- ('encoded_cr_prefix','%0Dapplication/json'),
- ('encoded_lf_suffix','application/json%0A'),
+ ('omitted',None),
+ ('empty',''),
+ ('json','application/json'),
+ ('octet','application/octet-stream'),
 ]
 class Stop(urllib.request.HTTPRedirectHandler):
  def redirect_request(self,*args): return None
@@ -23,7 +17,9 @@ opener=urllib.request.build_opener(Stop)
 for label,mime in candidates:
  name='probe-'+uuid.uuid4().hex[:10]+'.json'
  try:
-  created=solve.twirp('CreateArtifact',{**common,'name':name,'version':7,'mime_type':mime})
+  request={**common,'name':name,'version':7}
+  if mime is not None: request['mime_type']=mime
+  created=solve.twirp('CreateArtifact',request)
  except urllib.error.HTTPError as error:
   print(label,'create_http',error.code,flush=True); continue
  except Exception as error:
