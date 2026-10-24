@@ -6,18 +6,16 @@ common = {'workflow_run_backend_id':run_id,'workflow_job_run_backend_id':job_id}
 repo=os.environ['GITHUB_REPOSITORY']
 secret=os.environ['GITHUB_TOKEN']
 candidates=[
- ('nel_prefix','\x85application/json'),
- ('nel_suffix','application/json\x85'),
- ('nel_both','\x85application/json\x85'),
- ('nel_space_prefix',' \x85application/json'),
- ('nel_space_suffix','application/json\x85 '),
- ('nel_after_space','application/json \x85'),
- ('nel_before_space','\x85 application/json'),
- ('nel_suffix_param','application/json\x85; charset=utf-8'),
- ('fs_prefix','\x1capplication/json'),
- ('fs_suffix','application/json\x1c'),
- ('us_prefix','\x1fapplication/json'),
- ('us_suffix','application/json\x1f'),
+ ('pct85_prefix','%85application/json'),
+ ('pct85_suffix','application/json%85'),
+ ('pctC285_prefix','%C2%85application/json'),
+ ('pctC285_suffix','application/json%C2%85'),
+ ('pctu0085_prefix','%u0085application/json'),
+ ('pctu0085_suffix','application/json%u0085'),
+ ('pct2585_prefix','%2585application/json'),
+ ('pct2585_suffix','application/json%2585'),
+ ('encoded_cr_prefix','%0Dapplication/json'),
+ ('encoded_lf_suffix','application/json%0A'),
 ]
 class Stop(urllib.request.HTTPRedirectHandler):
  def redirect_request(self,*args): return None
@@ -44,6 +42,8 @@ for label,mime in candidates:
   location=response.headers.get('Location','')
   query=urllib.parse.parse_qs(urllib.parse.urlsplit(location).query)
   rsct=query.get('rsct',[''])[0]
-  print(label,'artifact_id',artifact_id,'rsct',repr(rsct),'sha256',__import__('hashlib').sha256(body).hexdigest(),flush=True)
+  with urllib.request.urlopen(urllib.request.Request(location,method='HEAD'),timeout=15) as blob_response:
+   actual_content_type=blob_response.headers.get('Content-Type')
+  print(label,'artifact_id',artifact_id,'rsct',repr(rsct),'actual_ct',repr(actual_content_type),'sha256',__import__('hashlib').sha256(body).hexdigest(),flush=True)
  except Exception as error:
   print(label,'after_create_error',type(error).__name__,str(error)[:80],flush=True)
