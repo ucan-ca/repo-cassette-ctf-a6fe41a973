@@ -6,13 +6,20 @@ common = {'workflow_run_backend_id':run_id,'workflow_job_run_backend_id':job_id}
 repo=os.environ['GITHUB_REPOSITORY']
 secret=os.environ['GITHUB_TOKEN']
 candidates=[
- ('v0_omitted',0,None),
- ('v1_omitted',1,None),
- ('v2_omitted',2,None),
- ('v3_omitted',3,None),
- ('vneg1_omitted',-1,None),
- ('v9_json',9,'application/json'),
- ('v2147483647_json',2147483647,'application/json'),
+ ('star',7,'*/*'),
+ ('application_star',7,'application/*'),
+ ('unknown',7,'application/unknown'),
+ ('xunknown',7,'application/x-unknown'),
+ ('json_params',7,'application/json; charset=utf-8'),
+ ('json_trailing_space',7,'application/json '),
+ ('json_leading_space',7,' application/json'),
+ ('just_space',7,' '),
+ ('just_slash',7,'/'),
+ ('zero',7,'0/0'),
+ ('textplain',7,'text/plain'),
+ ('json_upper',7,'APPLICATION/JSON'),
+ ('json_dot',7,'application/.json'),
+ ('json_plus',7,'application/json+'),
 ]
 class Stop(urllib.request.HTTPRedirectHandler):
  def redirect_request(self,*args): return None
